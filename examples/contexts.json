@@ -1,0 +1,73 @@
+{
+  "contexts": [
+    {
+      "id": "11111111-0000-0000-0000-000000000001",
+      "name": "Finance",
+      "parent_id": null,
+      "tags": [
+        "finance"
+      ],
+      "settings": [
+        {
+          "key": "dir",
+          "value": "~/documents/finance",
+          "type": "directory"
+        }
+      ],
+      "description": "Financial planning, budgeting, and investment tracking.",
+      "duration": "forever"
+    },
+    {
+      "id": "11111111-0000-0000-0000-000000000002",
+      "name": "Retirement",
+      "parent_id": "11111111-0000-0000-0000-000000000001",
+      "tags": [
+        "retirement",
+        "investments"
+      ],
+      "settings": [
+        {
+          "key": "dir",
+          "value": "~/documents/finance/retirement",
+          "type": "directory"
+        }
+      ],
+      "description": "Retirement portfolio rebalancing and long-term strategy.",
+      "duration": "+2h"
+    },
+    {
+      "id": "22222222-0000-0000-0000-000000000001",
+      "name": "Work",
+      "parent_id": null,
+      "tags": [
+        "work"
+      ],
+      "settings": [
+        {
+          "key": "dir",
+          "value": "~/projects/work",
+          "type": "directory"
+        }
+      ],
+      "description": "Day job tasks and projects.",
+      "duration": "1700"
+    },
+    {
+      "id": "33333333-0000-0000-0000-000000000001",
+      "name": "Personal",
+      "parent_id": null,
+      "tags": [
+        "personal"
+      ],
+      "settings": [
+        {
+          "key": "dir",
+          "value": "~/projects/personal",
+          "type": "directory"
+        }
+      ],
+      "description": null,
+      "duration": "forever"
+    }
+  ]
+}

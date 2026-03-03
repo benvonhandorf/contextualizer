@@ -1,0 +1,157 @@
+openapi: "3.1.0"
+info:
+  title: Contextualizer
+  description: |
+    Read-only local HTTP API for the Contextualizer system tray application.
+    This API is served on localhost only (default port 18647).
+    Plugins and extensions use this API to determine the current work context.
+  version: "0.1.0"
+
+servers:
+  - url: http://localhost:18647
+    description: Local Contextualizer instance
+
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Health check
+      description: Returns OK if the Contextualizer service is running.
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /context:
+    get:
+      operationId: getActiveContext
+      summary: Get active context
+      description: |
+        Returns the currently active context with all data resolved from the parent chain.
+
+        Tags and settings are merged additively from the root ancestor down to the
+        active context (deduped, first-seen order preserved). Description is inherited
+        from the nearest ancestor that defines one; a child's description overrides its
+        parent's. Returns 204 if no context is currently active.
+      responses:
+        "200":
+          description: The currently active resolved context
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResolvedContext"
+        "204":
+          description: No context is currently active
+
+  /contexts:
+    get:
+      operationId: getAllContexts
+      summary: Get all contexts
+      description: Returns all defined contexts with their data resolved from parent chains.
+      responses:
+        "200":
+          description: List of all resolved contexts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ResolvedContext"
+
+components:
+  schemas:
+    ResolvedContext:
+      type: object
+      required:
+        - id
+        - name
+        - tags
+        - settings
+        - duration
+        - breadcrumb
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for this context.
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        name:
+          type: string
+          description: Human-readable name for this context.
+          example: "Retirement"
+        parent_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: ID of the parent context, if any.
+        tags:
+          type: array
+          items:
+            type: string
+          description: |
+            Merged list of tags from the entire parent chain plus this context.
+            Ordered root-to-leaf, deduplicated preserving first occurrence.
+          example: ["finance", "retirement", "investments"]
+        settings:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContextSetting"
+          description: |
+            Merged list of settings from the entire parent chain.
+            Ordered root-to-leaf, deduplicated by (key, value) — keys are case-insensitive.
+        description:
+          type: string
+          nullable: true
+          description: |
+            Free-text description. Inherits from the nearest ancestor that defines one;
+            a child's description overrides its parent's. Intended for use as LLM context.
+          example: "Working on retirement investment strategy and portfolio rebalancing."
+        duration:
+          type: string
+          description: |
+            How long this context remains active after selection:
+            - "forever": stays active until manually changed (default).
+            - Clock time, e.g. "5:00 PM" or "1700": deactivates at that time today
+              (or tomorrow if that time has already passed today).
+            - Relative duration, e.g. "+2h" or "+30m": deactivates after that period
+              from when the context was last selected.
+          example: "forever"
+        breadcrumb:
+          type: array
+          items:
+            type: string
+          description: |
+            Ordered list of context names from the root ancestor to this context.
+            Suitable for display as a path.
+          example: ["Finance", "Retirement"]
+
+    ContextSetting:
+      type: object
+      required:
+        - key
+        - value
+        - type
+      properties:
+        key:
+          type: string
+          description: Setting name. Case-insensitive.
+          example: "dir"
+        value:
+          type: string
+          description: Setting value.
+          example: "/home/user/finance"
+        type:
+          type: string
+          enum: [directory, string]
+          description: |
+            Type of the setting value.
+            "directory": a filesystem directory path.
+            "string": a plain text string.
+          example: "directory"
