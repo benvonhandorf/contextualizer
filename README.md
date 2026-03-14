@@ -33,7 +33,7 @@ For example:
 
 ### Picking a Context
 
-To select an existing context, simply click on the Contextualizer icon and then pick your context from the menu.
+To select an existing context, simply click on the Contextualizer icon and then pick your context from the menu.  Contexts are shown in a nested menu that mirrors the parent/child hierarchy, so selecting a child context is done through its parent's submenu.  The currently active context is indicated with a check mark.
 
 You can also tell contextualizer to clear the current context by selecting `No Context` from the menu.
 
@@ -59,4 +59,11 @@ The API is documented using OpenAPI in `docs/openapi`.  The API is a simple, rea
 
 ## Future
 
+### History
+
+Allow plugins to publish a list or changes they've made, such as "Moved <filename> to <directory>".
+
+### Communication
+
 Contextualizer may eventually also provide a communication mechanism for plugins to each other, within a context.  This would allow a VS Code plugin to "publish" information about the work done into an obsidian note, logging the areas of code edited and when.
+

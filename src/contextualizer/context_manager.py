@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import logging
 import re
 import threading
 import time
 from datetime import datetime, timedelta
 from typing import Callable, Optional
+
+_log = logging.getLogger(__name__)
 
 from dateutil import parser as dateutil_parser
 
@@ -66,9 +69,11 @@ class ContextManager:
         with self._lock:
             if context_id is not None and context_id not in self._contexts:
                 raise ValueError(f"Unknown context id: {context_id}")
+            label = self._resolve(self._contexts[context_id]).breadcrumb_str() if context_id else "No Context"
             self._settings.active_context_id = context_id
             self._settings.active_context_selected_at = time.time() if context_id else None
             storage.save_settings(self._settings)
+        _log.info("Context changed: %s", label)
         self._reschedule_expiry()
         self._notify_change()
 

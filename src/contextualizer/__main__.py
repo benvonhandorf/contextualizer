@@ -1,9 +1,12 @@
+import logging
+import sys
 import threading
 
 import uvicorn
 
 from contextualizer.api import create_app
 from contextualizer.context_manager import ContextManager
+from contextualizer import platform as ctx_platform
 from contextualizer.tray import TrayApp
 
 # Default port. Plugins must be configured with the same value if changed.
@@ -24,6 +27,18 @@ def _run_server(manager: ContextManager) -> None:
 
 
 def main() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
+    try:
+        ctx_platform.check_environment()
+    except RuntimeError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        sys.exit(1)
+
     manager = ContextManager()
 
     # HTTP API server runs in a daemon thread; it exits automatically when the
